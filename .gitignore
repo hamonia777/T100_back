@@ -36,4 +36,4 @@ out/
 ### VS Code ###
 .vscode/
 ### 프로퍼티 ###
-.properties
+*.properties
