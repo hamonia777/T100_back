@@ -10,6 +10,7 @@ public enum SuccessCode {
     /* 200 OK : 요청이 성공적으로 완료되었다는 의미입니다. */
     USER_LOGIN_SUCCESS(OK, "로그인 성공"),
     USER_LOGOUT_SUCCESS(OK, "로그아웃 성공"),
+    COMMUNITY_SAVE_SUCCESS(OK, "게시물 생성 완료"),
     NO_SHOP_SUCCESS(NO_CONTENT, "조회 가능한 가게가 없습니다.");
 
     private final HttpStatus httpStatus;
