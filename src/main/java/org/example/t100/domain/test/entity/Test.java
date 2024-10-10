@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.t100.global.util.timestamp.Timestamped;
+import org.example.t100.global.timestamp.Timestamped;
 
 @Entity
 @Getter

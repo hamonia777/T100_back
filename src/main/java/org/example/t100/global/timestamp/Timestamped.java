@@ -1,4 +1,4 @@
-package org.example.t100.global.util.timestamp;
+package org.example.t100.global.timestamp;
 
 import jakarta.persistence.*;
 import lombok.Getter;
