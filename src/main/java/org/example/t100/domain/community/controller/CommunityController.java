@@ -26,4 +26,18 @@ public class CommunityController {
     public ApiResponse<?> getCommunity(@PathVariable Long community_id){
         return ResponseUtils.ok(communityService.getCommunity(community_id));
     }
+    @PatchMapping("/community/{community_id}")
+    public ApiResponse<?> updateCommunity(@PathVariable Long community_id,
+                                          @RequestBody CommunityRequestDto requestDto)
+    {
+        return ResponseUtils.ok(communityService.setCommunity(requestDto, community_id));
+    }
+    @PatchMapping("/community/{community_id}/postLike")
+    public ApiResponse<?> CommunityLike(@PathVariable Long community_id){
+        return ResponseUtils.ok(communityService.CommunityLike(community_id,1l));//userid는 추후에 쿠키에서 추출하는걸로 변경
+    }
+    @DeleteMapping("/community/{community_id}")
+    public ApiResponse<?> deleteCommunity(@PathVariable Long community_id){
+        return ResponseUtils.ok(communityService.deleteCommunity(community_id));
+    }
 }

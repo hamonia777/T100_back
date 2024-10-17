@@ -23,7 +23,15 @@ public class Community extends Timestamped {
 
     @ManyToOne
     User user;
-
+//    @OneToMany(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "community_id")
+//    CommunityLike communityLike;
+//
+    public void setCommunity(CommunityRequestDto requestDto)
+    {
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContent();
+    }
     public Community(CommunityRequestDto requestDto, User user) {
         this.user = user;
         this.title = requestDto.getTitle();
