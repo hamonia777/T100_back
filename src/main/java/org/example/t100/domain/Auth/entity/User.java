@@ -23,7 +23,7 @@ public class User extends Timestamped {
     String pass;
     String phone;
     String birth;
-
+    String role;
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     List<Community> communities;
