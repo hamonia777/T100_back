@@ -23,7 +23,7 @@ public class CommunityController {
     }
 
     @GetMapping("/community/{community_id}")
-    public ApiResponse<?> getCommunity(@PathVariable Long community_id){
+    public ApiResponse<?> getCommunity(@PathVariable("community_id") Long community_id){
         return ResponseUtils.ok(communityService.getCommunity(community_id));
     }
     @PatchMapping("/community/{community_id}")

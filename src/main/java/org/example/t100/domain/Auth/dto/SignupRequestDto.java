@@ -9,4 +9,5 @@ public class SignupRequestDto {
     private String pass;
     private String phone;
     private String birth;
+    private String role = "NORMAL";
 }

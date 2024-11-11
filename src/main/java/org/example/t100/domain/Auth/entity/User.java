@@ -8,6 +8,8 @@ import org.example.t100.domain.Auth.dto.SignupRequestDto;
 import org.example.t100.domain.community.entity.Community;
 import org.example.t100.global.timestamp.Timestamped;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -28,12 +30,20 @@ public class User extends Timestamped {
     @JoinColumn(name = "user_id")
     List<Community> communities;
 
+    public List<String> getRoleList() {
+        if(!this.role.isEmpty()) {
+            return Arrays.asList(this.role.split(","));
+        }
+        return new ArrayList<>();
+    }
+
     public User(SignupRequestDto requestDto){
         this.nick = requestDto.getNick();
         this.email = requestDto.getEmail();
         this.pass = requestDto.getPass();
         this.phone = requestDto.getPhone();
         this.birth = requestDto.getBirth();
+        this.role = requestDto.getRole();
     }
 
     public User(String nick, String email, String pass, String phone, String birth) {
