@@ -20,11 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration // IoC 빈(bean)을 등록
 @EnableWebSecurity // 필터 체인 관리 시작 어노테이션
 @RequiredArgsConstructor
@@ -34,7 +29,8 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
 
-    private final String[] allowedUrls = {"/", "/reissue", "/login"};
+    // 인증이 필요하지 않은 URL 목록
+    private final String[] allowedUrls = {"/", "/reissue", "/login", "/api/signup"};
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -49,52 +45,53 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // cors 비활성화
+        // CORS 설정
         http
                 .cors(cors -> cors
                         .configurationSource(CorsConfig.apiConfigurationSource()));
 
-        // csrf disable
+        // CSRF 비활성화
         http
                 .csrf(AbstractHttpConfigurer::disable);
 
-        // form 로그인 방식 disable
+        // 폼 로그인 비활성화
         http
                 .formLogin(AbstractHttpConfigurer::disable);
 
-        // http basic 인증 방식 disable
+        // HTTP Basic 인증 비활성화
         http
                 .httpBasic(AbstractHttpConfigurer::disable);
 
-        // Session을 사용하지 않고, Stateless 서버를 만듬.
+        // 세션 사용하지 않음
         http
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 경로별 인가
-        http.
-                authorizeHttpRequests(authorizeRequests ->
+        // 경로별 인가 설정
+        http
+                .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/user/**").authenticated()
                                 .requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGE")
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers(allowedUrls).permitAll()
-                                .anyRequest().permitAll()
+                                .anyRequest().authenticated()
                 );
 
-        // JWT login
-        // Jwt Filter (with login)
+        // JWT 로그인 필터 설정
         JwtAuthenticationFilter loginFilter = new JwtAuthenticationFilter(
                 authenticationManager(authenticationConfiguration), jwtUtil);
         loginFilter.setFilterProcessesUrl("/login");
 
         http
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // JwtAuthorizationFilter에 allowedUrls 전달
+        JwtAuthorizationFilter jwtAuthorizationFilter = new JwtAuthorizationFilter(jwtUtil, redisUtil, allowedUrls);
         http
-                .addFilterBefore(new JwtAuthorizationFilter(jwtUtil, redisUtil), JwtAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthorizationFilter, JwtAuthenticationFilter.class);
 
-
-        // Logout Filter
+        // 로그아웃 필터 설정
         http
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -111,5 +108,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
-
