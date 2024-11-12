@@ -6,26 +6,34 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.t100.domain.login.dto.PrincipalDetails;
-import org.example.t100.global.Enum.ErrorCode;
 import org.example.t100.global.util.RedisUtil;
 import org.example.t100.global.util.ResponseUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
-@RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
+    private final List<String> excludeUrls;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, RedisUtil redisUtil, String[] excludeUrls) {
+        this.jwtUtil = jwtUtil;
+        this.redisUtil = redisUtil;
+        this.excludeUrls = Arrays.asList(excludeUrls);
+    }
 
     @Override
     protected void doFilterInternal(
@@ -33,6 +41,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        String requestURI = request.getRequestURI();
+
+        // 인증이 필요하지 않은 URL이면 필터를 건너뜁니다.
+        if (isExcludedUrl(requestURI)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         log.info("[*] Jwt Filter");
 
         try {
@@ -44,9 +60,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // logout 처리된 accessToken
-            if (redisUtil.get(accessToken) != null && redisUtil.get(accessToken).equals("logout")) {
-                logger.info("[*] Logout accessToken");
+            // 로그아웃 처리된 accessToken
+            if ("logout".equals(redisUtil.get(accessToken))) {
+                log.info("[*] Logout accessToken");
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -56,13 +72,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
-            try {
-                ResponseUtils.setErrorResponse(response, HttpStatus.UNAUTHORIZED, "엑세스 토큰이 유효하지 않습니다.");
-            } catch (IOException ex) {
-                log.error("IOException occurred while setting error response: {}", ex.getMessage());
-            }
+            ResponseUtils.setErrorResponse(response, HttpStatus.UNAUTHORIZED, "엑세스 토큰이 만료되었습니다.");
             log.warn("[*] case : accessToken Expired");
+        } catch (Exception e) {
+            ResponseUtils.setErrorResponse(response, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+            log.error("Token validation error: {}", e.getMessage());
         }
+    }
+
+    private boolean isExcludedUrl(String requestURI) {
+        return excludeUrls.stream().anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
 
     private void authenticateAccessToken(String accessToken) {
@@ -76,15 +95,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         log.info("[*] Authority Registration");
 
-        // 현재 우리는 Token 서명으로 무결성을 검증하였기 때문에 username을 가지고 강제로 Authentication 을 만들어
-        // securityContextHolder에 넣어주면 된다.
-        // 스프링 시큐리티 인증 토큰 생성
         Authentication authToken = new UsernamePasswordAuthenticationToken(
                 principalDetails,
                 null,
-                principalDetails.getAuthorities());
+                principalDetails.getAuthorities()
+        );
 
-        // 컨텍스트 홀더에 저장
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 }
