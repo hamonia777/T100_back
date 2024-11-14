@@ -75,7 +75,7 @@ public class SecurityConfig {
                                 .requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGE")
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers(allowedUrls).permitAll()
-                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 );
 
         // JWT 로그인 필터 설정
