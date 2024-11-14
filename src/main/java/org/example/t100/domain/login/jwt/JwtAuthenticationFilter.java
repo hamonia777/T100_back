@@ -11,6 +11,7 @@ import org.example.t100.domain.login.dto.JwtDto;
 import org.example.t100.domain.login.dto.LoginRequestDto;
 import org.example.t100.domain.login.dto.PrincipalDetails;
 import org.example.t100.global.Enum.SuccessCode;
+import org.example.t100.global.dto.ApiResponse;
 import org.example.t100.global.util.ResponseUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -28,7 +29,7 @@ import java.util.Map;
 @Slf4j
 //@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
@@ -72,13 +73,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         log.info("Access Token: " + jwtDto.accessToken());
         log.info("Refresh Token: " + jwtDto.refreshToken());
-
+        String Body = objectMapper.writeValueAsString(ApiResponse.onSuccess(jwtDto));
 //        ResponseUtils.ok(response, HttpStatus.CREATED, jwtDto);
         Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", true);
-        responseBody.put("statusCode", HttpStatus.OK.value());
-        responseBody.put("message", "로그인 성공!");
-
+        response.getWriter().write(Body);
         response.setStatus(HttpStatus.OK.value());
         response.setContentType("application/json; charset=UTF-8"); // 인코딩 설정
         response.setCharacterEncoding("UTF-8"); // 추가 인코딩 설정
