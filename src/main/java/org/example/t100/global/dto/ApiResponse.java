@@ -1,7 +1,9 @@
 package org.example.t100.global.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -21,7 +23,16 @@ public class ApiResponse<T> {
         this.msg = msg;
         this.data = data;
     }
+    public ApiResponse(int statusCode, String msg ,T data) {
+        this.success = true;
+        this.statusCode = statusCode;
+        this.msg = msg;
+        this.data = data;
+    }
 
+    public static <T> ApiResponse<T> onSuccess(T result) {
+        return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), result);
+    }
 //    public ApiResponse(boolean success, int statusCode, String msg,
 //                       Integer size, Integer page, Integer totalCount, Integer totalPages, T data) {
 //        this.success = success;
