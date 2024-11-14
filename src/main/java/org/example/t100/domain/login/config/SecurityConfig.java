@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final RedisUtil redisUtil;
 
     // 인증이 필요하지 않은 URL 목록
-    private final String[] allowedUrls = {"/", "/reissue", "/login", "/api/signup"};
+    private final String[] allowedUrls = {"/", "/reissue", "/login", "/api/signup", "/crawl"};
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
