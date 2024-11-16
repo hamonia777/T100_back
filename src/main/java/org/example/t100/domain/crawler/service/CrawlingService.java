@@ -3,6 +3,7 @@ package org.example.t100.domain.crawler.service;
 import lombok.extern.slf4j.Slf4j;
 import org.example.t100.domain.crawler.entity.Trend;
 import org.example.t100.domain.crawler.repository.TrendRepository;
+import org.example.t100.global.Enum.SuccessCode;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -16,17 +17,18 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 
 import static java.lang.Thread.sleep;
+import static org.example.t100.global.Enum.SuccessCode.*;
 
 @Slf4j
 @Service
 public class CrawlingService {
     @Autowired
     private TrendRepository trendRepository;
-    public void crawlAndSave() {
+    public SuccessCode crawlAndSave() {
         System.setProperty("webdriver.chrome.driver", "/chromedriver/chromedriver.exe");
 
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--no-sandbox", "--disable-dev-shm-usage");
+        options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
 
         WebDriver driver = new ChromeDriver(options);
         driver.get("https://trends.google.co.kr/trends/");
@@ -116,5 +118,6 @@ public class CrawlingService {
             }
         }
         driver.quit();
+        return CRAWLING_SUCCESS;
     }
 }
