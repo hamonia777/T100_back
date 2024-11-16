@@ -32,4 +32,8 @@ public class UserService {
             return NOT_DUPLICATE_NICK;
         }
     }
+
+    public Object findPass(String pass) {
+
+    }
 }

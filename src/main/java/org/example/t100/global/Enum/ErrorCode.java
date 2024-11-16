@@ -11,6 +11,7 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰이 유효하지 않습니다"),
     MISMATCH_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰의 유저 정보가 일치하지 않습니다"),
     UNAUTHORIZED(BAD_REQUEST,"엑세스 토큰이 유효하지 않습니다."),
+    BADREQUEST(BAD_REQUEST,"잘못된요청입니다"),
     NOT_FOUND_DATA(BAD_REQUEST, "데이터가 없습니다");
 
 
