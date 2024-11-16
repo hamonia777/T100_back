@@ -19,6 +19,7 @@ public enum SuccessCode {
     LIKE_SUCCESS(OK,"좋아요 성공"),
     LIKE_CANCEL(OK,"좋아요 취소"),
     CRAWLING_SUCCESS(OK, "크롤링 성공"),
+    MAIL_SUCCESS(OK,"메일 발송 성공"),
     NO_SHOP_SUCCESS(NO_CONTENT, "조회 가능한 가게가 없습니다.");
     
 
