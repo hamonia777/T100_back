@@ -5,6 +5,9 @@ import org.example.t100.domain.Auth.dto.SignupRequestDto;
 import org.example.t100.domain.Auth.entity.User;
 import org.example.t100.domain.Auth.repository.UserRepository;
 import org.example.t100.global.Enum.SuccessCode;
+import org.springframework.context.annotation.Bean;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +36,5 @@ public class UserService {
         }
     }
 
-    public Object findPass(String pass) {
 
-    }
 }

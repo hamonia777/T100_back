@@ -31,7 +31,7 @@ public class ResponseUtils {
         response.setStatus(status.value());
         return new ApiResponse<>(true, status.value(), null, data);
     }
-    public static ApiResponse<?> error(ErrorCode errorCode) {
+    public static ApiResponse<?> error(ErrorCode errorCode)  {
         int statusCode = errorCode.getHttpStatus().value();
         String msg = errorCode.getDetail();
         return new ApiResponse<>(false, statusCode, msg, null);

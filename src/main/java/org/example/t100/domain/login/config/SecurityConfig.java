@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final RedisUtil redisUtil;
 
     // 인증이 필요하지 않은 URL 목록
-    private final String[] allowedUrls = {"/", "/reissue", "/login", "/api/signup", "/api/crawl"};
+    private final String[] allowedUrls = {"/", "/reissue", "/login", "/api/signup", "/api/crawl","/api/signUp/findMyPass","/api/signUp/checkNick"};
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -71,6 +71,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
+                                .requestMatchers("/api/signUp/**").permitAll()
                                 .requestMatchers("/user/**").authenticated()
                                 .requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGE")
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
