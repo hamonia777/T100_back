@@ -97,13 +97,13 @@ public class JwtUtil {
     // principalDetails 객체에 대해 새로운 JWT 액세스 토큰을 생성
     public String createJwtAccessToken(PrincipalDetails principalDetails) {
         Instant expiration = Instant.now().plusMillis(accessExpMs);
-        return tokenProvider(principalDetails, expiration);
+        return "Bearer " + tokenProvider(principalDetails, expiration);
     }
 
     // principalDetails 객체에 대해 새로운 JWT 리프레시 토큰을 생성
     public String createJwtRefreshToken(PrincipalDetails principalDetails) {
         Instant expiration = Instant.now().plusMillis(refreshExpMs);
-        String refreshToken = tokenProvider(principalDetails, expiration);
+        String refreshToken = "Bearer " + tokenProvider(principalDetails, expiration);
 
         // Redis에 저장
         redisUtil.save(
@@ -136,7 +136,7 @@ public class JwtUtil {
 
     // HTTP 요청의 'Authorization' 헤더에서 JWT 액세스 토큰을 검색
     public String resolveAccessToken(HttpServletRequest request) {
-        String authorization = request.getHeader("Authorization");
+        String authorization = request.getHeader("accessToken");
 
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             log.warn("[*] No Token in request");

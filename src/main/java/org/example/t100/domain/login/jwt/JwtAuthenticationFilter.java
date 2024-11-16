@@ -25,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
+// 로그인 경로 및 토큰 생성
 @Slf4j
 //@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -70,15 +70,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 jwtUtil.createJwtAccessToken(principalDetails),
                 jwtUtil.createJwtRefreshToken(principalDetails)
         );
-
-        log.info("Access Token: " + jwtDto.accessToken());
-        log.info("Refresh Token: " + jwtDto.refreshToken());
-        String Body = objectMapper.writeValueAsString(ApiResponse.onSuccess(jwtDto));
-//        ResponseUtils.ok(response, HttpStatus.CREATED, jwtDto);
-        Map<String, Object> responseBody = new HashMap<>();
-        response.getWriter().write(Body);
         response.setStatus(HttpStatus.OK.value());
         response.setContentType("application/json; charset=UTF-8"); // 인코딩 설정
         response.setCharacterEncoding("UTF-8"); // 추가 인코딩 설정
-        new ObjectMapper().writeValue(response.getWriter(), responseBody);    }
+        response.addHeader("accessToken", jwtDto.accessToken());
+        log.info("Access Token: " + jwtDto.accessToken());
+        log.info("Refresh Token: " + jwtDto.refreshToken());
+//        String Body = objectMapper.writeValueAsString(ApiResponse.onSuccess(jwtDto));
+        String Body = objectMapper.writeValueAsString(ResponseUtils.ok(SuccessCode.USER_LOGIN_SUCCESS));
+//        ResponseUtils.ok(response, HttpStatus.CREATED, jwtDto);
+//        Map<String, Object> responseBody = new HashMap<>();
+//        responseBody.put("body", Body);
+        response.getWriter().write(Body);
+//        ResponseUtils.ok(SuccessCode.USER_LOGIN_SUCCESS);
+//        new ObjectMapper().writeValue(response.getWriter(), responseBody);
+    }
 }

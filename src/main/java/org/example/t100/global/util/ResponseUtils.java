@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -36,16 +37,30 @@ public class ResponseUtils {
         return new ApiResponse<>(false, statusCode, msg, null);
     }
 
-    public static ApiResponse<?> error(HttpStatus httpStatus, String error) {
-        return new ApiResponse<>(false, httpStatus.value(), error, null);
-    }
-    public static void setErrorResponse(HttpServletResponse response, HttpStatus httpStatus, Object body)
-            throws IOException {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(httpStatus.value());
-        response.setCharacterEncoding("UTF-8");
-        objectMapper.writeValue(response.getOutputStream(), body);
-    }
+//    public static ApiResponse<?> error(HttpStatus httpStatus, String error) throws IOException {
+//        return new ApiResponse<>(false, httpStatus.value(), error, null);
+//    }
+public static void error(HttpServletResponse response, HttpStatus status, String message) throws IOException {
+    response.setStatus(status.value());
+    response.setContentType("application/json; charset=UTF-8");
+    response.setCharacterEncoding("UTF-8");
+
+    // 응답 바디 생성
+    Map<String, Object> errorResponse = new HashMap<>();
+    errorResponse.put("success", false);
+    errorResponse.put("status", status.value());
+    errorResponse.put("message", message);
+
+    // 응답 바디 작성
+    new ObjectMapper().writeValue(response.getWriter(), errorResponse);
+}
+//    public static void setErrorResponse(HttpServletResponse response, HttpStatus httpStatus, Object body)
+//            throws IOException {
+//        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+//        response.setStatus(httpStatus.value());
+//        response.setCharacterEncoding("UTF-8");
+//        objectMapper.writeValue(response.getOutputStream(), body);
+//    }
 //    public static <T> ApiResponse<T> pageOk(Integer size, Integer page, Integer totalCount, Integer totalPages,
 //                                            T response) {
 //        return new ApiResponse<>(true, 200, null,

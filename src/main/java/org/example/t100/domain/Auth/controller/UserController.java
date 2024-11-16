@@ -25,4 +25,8 @@ public class UserController {
         return ResponseUtils.ok(userService.checkNick(nick));
     }
 
+    @GetMapping("/signUp/findMyPass")
+    public ApiResponse<?> findPass(@RequestParam String pass) {
+        return ResponseUtils.ok(userService.findPass(pass));
+    }
 }

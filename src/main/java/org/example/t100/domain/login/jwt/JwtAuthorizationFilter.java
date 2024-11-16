@@ -20,7 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
+// 토큰 검증
 @Slf4j
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
@@ -53,12 +53,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         try {
             String accessToken = jwtUtil.resolveAccessToken(request);
-
+            log.info("1"+ accessToken);
             // accessToken 없이 접근할 경우
             if (accessToken == null) {
+                ResponseUtils.error(response, HttpStatus.UNAUTHORIZED, "토큰이 없습니다");
                 filterChain.doFilter(request, response);
                 return;
             }
+            log.info("2"+ accessToken);
 
             // 로그아웃 처리된 accessToken
             if ("logout".equals(redisUtil.get(accessToken))) {
@@ -72,10 +74,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
-            ResponseUtils.setErrorResponse(response, HttpStatus.UNAUTHORIZED, "엑세스 토큰이 만료되었습니다.");
+            ResponseUtils.error(response,HttpStatus.UNAUTHORIZED, "엑세스 토큰이 만료되었습니다.");
+//            ResponseUtils.setErrorResponse(response, HttpStatus.UNAUTHORIZED, "엑세스 토큰이 만료되었습니다.");
             log.warn("[*] case : accessToken Expired");
         } catch (Exception e) {
-            ResponseUtils.setErrorResponse(response, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+            ResponseUtils.error(response,HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+//            ResponseUtils.setErrorResponse(response, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
             log.error("Token validation error: {}", e.getMessage());
         }
     }
