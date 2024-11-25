@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.t100.domain.crawler.entity.Trend;
 import org.example.t100.domain.crawler.repository.TrendRepository;
 import org.example.t100.global.Enum.SuccessCode;
-import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -30,13 +27,11 @@ public class CrawlingService {
     public SuccessCode crawlAndSave() {
         WebDriver driver = initWebdriver();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        ;
         List<Trend> trends = new ArrayList<>();
 
         try {
-            crawlKeyword(driver, wait, trends);
-            crawlCategory(driver, wait, trends);
-
+            crawlTrend(driver, wait, trends);
+            setCategory(driver, wait, trends);
             saveTrends(trends);
         } catch (Exception e) {
             log.error("crawlAndSave Error: {}", e.getMessage());
@@ -52,25 +47,84 @@ public class CrawlingService {
         System.setProperty("webdriver.chrome.driver", "/chromedriver/chromedriver.exe");
 
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--no-sandbox", "--disable-dev-shm-usage");
+        options.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--start-maximized");
 
         return new ChromeDriver(options);
     }
 
-    private void crawlKeyword(WebDriver driver, WebDriverWait wait, List<Trend> trends) {
+    private void crawlTrend(WebDriver driver, WebDriverWait wait, List<Trend> trends) {
         driver.get("https://trends.google.co.kr/trending?geo=KR&sort=search-volume&hours=168");
+        String nation = crawlingNation(wait);
+        List<WebElement> keywordElements;
+        List<WebElement> searchVolumeElements;
+        List<WebElement> startDateElements;
 
-        int totalPageCount = crawlingTotalPageCount(wait);
-        for(int page = 1; page <= totalPageCount / 25 + 1; page++) {
-            crawling(driver, wait, trends);
+        for (int page = 0; page < 4; page++) {
+            keywordElements = crawlingKeyword(driver, wait);
+            searchVolumeElements = findElementsSafely(wait, "lqv0Cb", Duration.ofSeconds(10));
+            startDateElements = findElementsSafely(wait, "vdw3Ld", Duration.ofSeconds(10));
 
-            if(page != totalPageCount / 25 + 1) {
-                toNextPage(driver, wait);
+            try {
+                for (int row = 0; row < keywordElements.size(); row++) {
+                    log.info("Processing row: {}", row);
+
+                    WebElement clickElement = wait.until(ExpectedConditions.elementToBeClickable(
+                            By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[2]/div[1]/div[1]/div[1]/table/tbody[2]/tr[" + (row + 1) + "]/td[2]/div[1]")
+                    ));
+                    clickElement.click();
+
+                    List<WebElement> newsTitleElements = findElementsSafely(wait, "QbLC8c", Duration.ofSeconds(10));
+                    List<String> newsTitles = new ArrayList<>();
+
+                    for (int newsTitleRow = 0; newsTitleRow < Math.min(3, newsTitleElements.size()); newsTitleRow++) {
+                        String newsTitle = newsTitleElements.get(newsTitleRow).getText().trim();
+                        log.info("News title (row {}): {}", newsTitleRow, newsTitle);
+                        newsTitles.add(newsTitle);
+                    }
+
+                    String keyword = keywordElements.get(row).getText();
+                    String searchVolume = searchVolumeElements.get(row).getText();
+                    String startDate = startDateElements.get(row).getText();
+
+                    Trend trend = new Trend();
+                    trend.setKeyword(keyword);
+                    trend.setSearchVolume(searchVolume);
+                    trend.setStart_date(startDate);
+                    trend.setNation(nation);
+                    trend.setNewsTitles(newsTitles);
+                    trends.add(trend);
+                }
+            } catch (Exception e) {
+                log.error("crawlTrend Error: {}", e.getMessage());
             }
+            toNextPage(driver, wait);
         }
     }
 
-    private void crawlCategory(WebDriver driver, WebDriverWait wait, List<Trend> trends) {
+
+    private List<WebElement> crawlingKeyword(WebDriver driver, WebDriverWait wait) {
+        List<WebElement> keywordElements = findElementsSafely(wait, "mZ3RIc", Duration.ofSeconds(10));
+
+        return keywordElements;
+    }
+
+    private List<WebElement> findElementsSafely(WebDriverWait wait, String className, Duration timeout) {
+        try {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return wait.withTimeout(timeout)
+                    .ignoring(NoSuchElementException.class)
+                    .until(driver -> driver.findElements(By.className(className)));
+        } catch (TimeoutException e) {
+            return new ArrayList<>(); // 요소가 없으면 빈 리스트 반환
+        }
+    }
+//
+//
+    private void setCategory(WebDriver driver, WebDriverWait wait, List<Trend> trends) {
         for(int categoryParameter = 1; categoryParameter <= 20; categoryParameter++) {
             log.info("crawlCategory: categoryParameter={}", categoryParameter);
             if (categoryParameter == 12)
@@ -80,16 +134,30 @@ public class CrawlingService {
             String category = crawlingCategory(wait);
             int totalPageCount = crawlingTotalPageCount(wait);
 
-            for(int page = 1; page <= totalPageCount / 25 + 1; page++) {
-                setCategory(driver, wait, trends, category);
-
-                if(page != totalPageCount / 25 + 1) {
+            for(int page = 1; page <= (totalPageCount + 25) / 25; page++) {
+                List<WebElement> keywordElements = crawlingKeyword(driver, wait);
+                for (int row = 0; row < keywordElements.size(); row++) {
+                    try {
+                        String keyword = keywordElements.get(row).getText();
+                        for(Trend t : trends){
+                            if (t.getKeyword().equals(keyword)) {
+                                if(t.getCategory() == null){
+                                    t.setCategory(category);
+                                    break;
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("crawling Error: {}", e.getMessage());
+                    }
+                }
+                if(page != (totalPageCount + 25) / 25) {
                     toNextPage(driver, wait);
                 }
             }
         }
     }
-
+//
     private int crawlingTotalPageCount(WebDriverWait wait) {
         try {
             WebElement pageInfoElement = wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -106,6 +174,12 @@ public class CrawlingService {
 
     private String crawlingCategory(WebDriverWait wait) {
         try {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             WebElement categoryElement = wait.until(ExpectedConditions.presenceOfElementLocated(
                     By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[1]/div[1]/div/div[3]/div/div[1]/div/button/span[5]")
             ));
@@ -121,92 +195,39 @@ public class CrawlingService {
         }
     }
 
-    private void setCategory(WebDriver driver, WebDriverWait wait, List<Trend> trends, String category) {
-        int totalRowCount = crawlingTotalRowCount(wait);
-        for(int row = 1; row <= totalRowCount; row++ ) {
-            try {
-                Trend trend = crawlingTrend(wait, row);
-                for(Trend t : trends){
-                    if (t.getKeyword().equals(trend.getKeyword())) {
-                        if(t.getCategory() == null){
-                            t.setCategory(category);
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("crawling Error: {}", e.getMessage());
-            }
-        }
-    }
-
-    private void crawling(WebDriver driver, WebDriverWait wait, List<Trend> trends) {
-        int totalRowCount = crawlingTotalRowCount(wait);
-        for(int row = 1; row <= totalRowCount; row++ ) {
-            try {
-                Trend trend = crawlingTrend(wait, row);
-                trends.add(trend);
-            } catch (Exception e) {
-                log.error("crawling Error: {}", e.getMessage());
-            }
-        }
-    }
-
-    private int crawlingTotalRowCount(WebDriverWait wait) {
-        try {
-            WebElement pageInfoElement = wait.until(ExpectedConditions.presenceOfElementLocated(
-                    By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[2]/div[1]/div[1]/div[2]/div/div[2]/div/div")
-            ));
-
-            String[] pageInfo = pageInfoElement.getText().trim().split(" ");
-            if (pageInfo.length >= 3 && pageInfo[2].contains("–")) {
-                String[] range = pageInfo[2].split("–");
-                if (range.length == 2) {
-                    int start = Integer.parseInt(range[0].trim());
-                    int end = Integer.parseInt(range[1].trim());
-                    log.info("Page Total Row Count: {}", end - start + 1);
-                    return end - start + 1;
-                } else {
-                    log.error("Unexpected range format: {}", pageInfo[2]);
-                }
-            } else {
-                log.error("Unexpected page info format: {}", pageInfoElement.getText().trim());
-            }
-        } catch(TimeoutException | NumberFormatException e) {
-            log.error("crawlingTotalPageCount Error: {}", e.getMessage());
-        }
-        return 0;
-    }
-
-    private Trend crawlingTrend(WebDriverWait wait, int row) {
-        Trend trend = new Trend();
-
+    private String crawlingNation(WebDriverWait wait){
         WebElement countryElement = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[1]/div[1]/div/div[1]/div/div[1]/div/button/span[5]")
         ));
         if (countryElement.getText().trim().contains("▾")) {
-            trend.setNation(countryElement.getText().trim().split("▾")[0].trim());
+            return countryElement.getText().trim().split("▾")[0].trim();
         }
         else {
-            trend.setNation(countryElement.getText().trim());
+            return countryElement.getText().trim();
         }
+    }
 
-        WebElement trendElement = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[2]/div[1]/div[1]/div[1]/table/tbody[2]/tr[" + row + "]/td[2]/div[1]")
-        ));
-        trend.setKeyword(trendElement.getText().trim());
+    private List<String> crawlingNews(WebDriverWait wait, int row){
+        List<String> newsTitles = new ArrayList<>();
+        try {
+            WebElement clickElement = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[2]/div[1]/div[1]/div[1]/table/tbody[2]/tr[" + row + "]/td[2]/div[1]")
+            ));
+            clickElement.click();
 
-        WebElement volumeElement = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[2]/div[1]/div[1]/div[1]/table/tbody[2]/tr[" + row + "]/td[3]/div/div[1]")
-        ));
-        trend.setSearch_volume(volumeElement.getText().trim());
+            List<WebElement> newsTitleElements = findElementsSafely(wait, "QbLC8c", Duration.ofSeconds(10));
 
-        WebElement startElement = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//*[@id=\"trend-table\"]/div[1]/table/tbody[2]/tr[" + row + "]/td[4]/div[1]")
-        ));
-        trend.setStart_date(startElement.getText().trim());
+            for(int newsTitleRow = 0; newsTitleRow < 3; newsTitleRow++) {
+                log.info("{}", newsTitleElements.get(newsTitleRow).getText().trim());
+                newsTitles.add(newsTitleElements.get(newsTitleRow).getText().trim());
+            }
+            //clickElement.click();
 
-        return trend;
+            return newsTitles;
+        } catch(TimeoutException | NumberFormatException e) {
+            log.error("crawlingNews Error: {}", e.getMessage());
+            return null;
+        }
     }
 
     private void toNextPage(WebDriver driver, WebDriverWait wait) {
