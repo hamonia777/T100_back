@@ -22,12 +22,17 @@ public class UserController {
         return ResponseUtils.ok(userService.signup(requestDto));
     }
 
-    @GetMapping("/signUp/checkNick")
-    public ApiResponse<?> checkNick(@RequestParam String nick) {
+    @GetMapping("/signup/checkNick")
+    public ApiResponse<?> checkNick(@RequestParam("nick") String nick) {
         return ResponseUtils.ok(userService.checkNick(nick));
     }
 
-    @GetMapping("/signUp/findMyPass")
+    @GetMapping("/signup/checkEmail")
+    public ApiResponse<?> checkEmail(@RequestParam("email") String email) {
+        return ResponseUtils.ok(userService.checkEmail(email));
+    }
+
+    @GetMapping("/signup/findMyPass")
     public ApiResponse<?> findPass(@RequestParam("Email") String Email) {
         return ResponseUtils.ok(mailService.findPass(Email));
     }

@@ -21,6 +21,7 @@ public class User extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     String nick;
+    @Column(nullable = false, unique = true)
     String email;
     String pass;
     String phone;

@@ -5,33 +5,26 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.ArrayList;
 
 @Configuration
-public class CorsConfig implements WebMvcConfigurer {
+public class CorsConfig {
 
     @Bean
-    public static CorsConfigurationSource apiConfigurationSource() {
+    public CorsConfigurationSource apiConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 확장성을 위해 다 ArrayList로 처리
-        ArrayList<String> allowedOriginPatterns = new ArrayList<>();
-        allowedOriginPatterns.add("*");
-
-        ArrayList<String> allowedHttpMethods = new ArrayList<>();
-        allowedHttpMethods.add("*");
-
-        configuration.setAllowCredentials(true);   // 내 서버가 응답을 할 때 응답해준 json을 자바스크립트에서 처리할 수 있게 할지를 설정
-        configuration.setAllowedOrigins(allowedOriginPatterns); // 응답 허용할 ip
-        configuration.addAllowedHeader("*");                    // 응답 허용할 header
-        configuration.setAllowedMethods(allowedHttpMethods);    // 응답 허용할 HTTP Method
-
+        configuration.addAllowedOrigin("http://localhost:3000"); // 허용된 Origin
+        configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
+        configuration.addAllowedHeader("*"); // 모든 헤더 허용
+        configuration.setAllowCredentials(true); // 인증 정보 허용
+        configuration.addExposedHeader("accessToken"); // 클라이언트가 읽을 수 있도록 설정
+        configuration.addExposedHeader("accesstoken");
+        configuration.addExposedHeader("AccessToken");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // /api/** 로 들어오는 모든 요청들은 config를 따르도록 등록!
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
-
 }
+
+

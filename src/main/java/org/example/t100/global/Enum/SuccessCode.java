@@ -21,7 +21,9 @@ public enum SuccessCode {
     CRAWLING_SUCCESS(OK, "크롤링 성공"),
     MAIL_SUCCESS(OK,"메일 발송 성공"),
     NO_SHOP_SUCCESS(NO_CONTENT, "조회 가능한 가게가 없습니다."),
-    REPORT_CREATE_SUCCESS(OK, "보고서 생성 성공");
+    REPORT_CREATE_SUCCESS(OK, "보고서 생성 성공"),
+    DUPLICATE_EMAIL(OK,"이메일 중복"),
+    NOT_DUPLICATE_EMAIL(OK,"이메일 유효");
     
 
     private final HttpStatus httpStatus;

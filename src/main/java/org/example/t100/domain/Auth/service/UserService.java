@@ -37,4 +37,11 @@ public class UserService {
     }
 
 
+    public SuccessCode checkEmail(String email) {
+        if(userRepository.existsByEmail(email)){
+            return DUPLICATE_EMAIL;
+        }
+        else
+            return NOT_DUPLICATE_EMAIL;
+    }
 }
