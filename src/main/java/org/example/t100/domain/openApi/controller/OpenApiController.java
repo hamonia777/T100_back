@@ -3,6 +3,7 @@ package org.example.t100.domain.openApi.controller;
 import lombok.NoArgsConstructor;
 import org.example.t100.domain.openApi.Dto.ChatGPTRequest;
 import org.example.t100.domain.openApi.Dto.ChatGPTResponse;
+import org.example.t100.domain.openApi.Dto.ReportDto;
 import org.example.t100.domain.openApi.entity.OpenApi;
 import org.example.t100.domain.openApi.repository.OpenApiRepository;
 import org.example.t100.domain.openApi.service.OpenApiService;
@@ -27,5 +28,11 @@ public class OpenApiController {
     public ApiResponse<?> call_GPT(){
         SuccessCode successCode = openApiService.create_Report();
         return ResponseUtils.ok(successCode);
+    }
+
+    @GetMapping("/report")
+    public ApiResponse<?> get_Report(){
+        ReportDto reportDto = openApiService.get_Report();
+        return ResponseUtils.ok(reportDto);
     }
 }
