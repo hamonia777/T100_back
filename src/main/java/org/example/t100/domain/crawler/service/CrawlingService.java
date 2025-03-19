@@ -197,7 +197,7 @@ public class CrawlingService {
 
     private String crawlingNation(WebDriverWait wait){
         WebElement countryElement = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[1]/div[1]/div/div[1]/div/div[1]/div/button/span[5]")
+                By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[1]/div[1]/div/div[1]/c-wiz/div/div/div[1]/div/button/span[5]")
         ));
         if (countryElement.getText().trim().contains("▾")) {
             return countryElement.getText().trim().split("▾")[0].trim();
@@ -211,7 +211,7 @@ public class CrawlingService {
         List<String> newsTitles = new ArrayList<>();
         try {
             WebElement clickElement = wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[2]/div[1]/div[1]/div[1]/table/tbody[2]/tr[" + row + "]/td[2]/div[1]")
+                    By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[2]/div[1]/div[1]/div[1]/table/tbody[2]/tr[1]/td[2]/div[1]")
             ));
             clickElement.click();
 
