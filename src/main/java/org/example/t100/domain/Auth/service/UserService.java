@@ -20,10 +20,10 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public SuccessCode signup(SignupRequestDto requestDto) {
-        User user = new User(requestDto);
-        user.setPass(bCryptPasswordEncoder.encode(requestDto.getPass()));
-        userRepository.save(user);
-        user.setRole("NORMAL");
+        User user = new User(requestDto); //dto->entity 변환
+        user.setPass(bCryptPasswordEncoder.encode(requestDto.getPass()));  //비밀번호 암호화
+        userRepository.save(user); //db에 저장
+        user.setRole("NORMAL"); // 권한 설정
         return SIGNUP_SUCCESS;
     }
 

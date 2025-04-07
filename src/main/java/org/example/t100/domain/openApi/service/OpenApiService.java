@@ -42,7 +42,7 @@ public class OpenApiService {
         List<Trend> trends = trendRepository.findByIdBetween(1L, 100L);
         StringBuilder promptBuilder = new StringBuilder();
 
-        promptBuilder.append("키워드 100개에 대한 카테고리, 나라, 검색량, 시작일, 관련 뉴스 제목입니다. 어떤 일이 이슈인지 분석하고 설명해주세요 100개중에서 그 키워드와 연관 키워드가 있다면 그 키워드와 연계해서 분석해주세요\n");
+        promptBuilder.append("키워드들에 대한 카테고리, 나라, 검색량, 시작일, 관련 뉴스 제목입니다. 어떤 일이 이슈인지 분석하고 설명해주세요 이슈 중에서 그 키워드와 연관 키워드가 있다면 그 키워드와 연계해서 분석해주세요\n");
 
         if (trends == null || trends.isEmpty()) {
             return "No trends available.";
@@ -64,12 +64,15 @@ public class OpenApiService {
         return promptBuilder.toString();
     }
 
-    public SuccessCode create_Report(){
+    public SuccessCode create_Report() {
         String prompt = create_Prompt();
+
         ChatGPTRequest request = new ChatGPTRequest(model, prompt);
         ChatGPTResponse chatGPTResponse =  template.postForObject(apiURL, request, ChatGPTResponse.class);
+
         OpenApi openApi = new OpenApi();
         String title = LocalDate.now().toString() + " 대한민국 분석 보고서";
+
         String content = chatGPTResponse.getChoices().get(0).getMessage().getContent();
         openApi.setTitle(title);
         openApi.setContent(content);
