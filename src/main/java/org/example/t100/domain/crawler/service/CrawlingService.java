@@ -10,6 +10,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -53,11 +54,12 @@ public class CrawlingService {
     }
 
     private void crawlTrend(WebDriver driver, WebDriverWait wait, List<Trend> trends) {
+        //대한민국/지난7일/모든 카테고리/모든 트렌드/검색량 기준
         driver.get("https://trends.google.co.kr/trending?geo=KR&sort=search-volume&hours=168");
         String nation = crawlingNation(wait);
-        List<WebElement> keywordElements;
-        List<WebElement> searchVolumeElements;
-        List<WebElement> startDateElements;
+        List<WebElement> keywordElements;//키워드 목록
+        List<WebElement> searchVolumeElements; // 검색량 
+        List<WebElement> startDateElements;  //시작 날짜
 
         for (int page = 0; page < 4; page++) {
             keywordElements = crawlingKeyword(driver, wait);
@@ -67,9 +69,10 @@ public class CrawlingService {
             try {
                 for (int row = 0; row < keywordElements.size(); row++) {
                     log.info("Processing row: {}", row);
-
+                    //각 트렌드의 상세 뉴스 클릭 후 뉴스 제목 수집
                     WebElement clickElement = wait.until(ExpectedConditions.elementToBeClickable(
                             By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[2]/div[1]/div[1]/div[1]/table/tbody[2]/tr[" + (row + 1) + "]/td[2]/div[1]")
+                                    //같은 행에 있는 트렌드 분석 키워드의 tr 값은 모두 같아서 row+1로 해놨음.
                     ));
                     clickElement.click();
 
