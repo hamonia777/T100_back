@@ -31,7 +31,7 @@ public class CommunityService {
     public SuccessCode saveCommunity(CommunityRequestDto requestDto) {
         User user = new User("홍길동", "test@gmail.com", "password", "01012345678", "20010421");
         userRepository.save(user);
-        Community community = new Community(requestDto, user);
+        Community community = new Community(requestDto);
         communityRepository.save(community);
         return COMMUNITY_SAVE_SUCCESS;
     }

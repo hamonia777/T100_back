@@ -10,7 +10,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -104,7 +103,23 @@ public class CrawlingService {
         }
     }
 
-
+//
+//    selenium webdriver로 특정 클래스명을 가진 요소들을 안전하게 찾는 크롤링 코드
+//            mZ3RIc 라는 클래스를 가진 요소들을 wait을 서서 일정 시간 기다리며 찾는 구조
+//            실패 시에도 예외 안 터지게 빈 ArrayList<>()를 반환
+//            Thread.sleep(1000)
+//                    → 크롤링 타이밍 맞추기 위해 1초 대기
+//                    → 페이지 로딩 또는 애니메이션 방지용으로 자주 씀
+//
+//            wait.withTimeout(timeout).until(...)
+//                → 최대 timeout 시간 동안 요소가 나타나기를 기다림
+//
+//            .ignoring(NoSuchElementException.class)
+//                → 해당 클래스가 없더라도 예외 안 터지고 계속 기다리게 함
+//
+//                실패하면 TimeoutException을 잡고 빈 리스트 반환
+//        이 코드는 selenium 크롤링에서 요소를 안정적으로  찾기 위한 유틸 함수
+//            findElementsSafely()는 페이지 로딩 지연이나 요소 누락 상황에서도 크롤링이 중단되지 않도록 해주는 역할
     private List<WebElement> crawlingKeyword(WebDriver driver, WebDriverWait wait) {
         List<WebElement> keywordElements = findElementsSafely(wait, "mZ3RIc", Duration.ofSeconds(10));
 
@@ -125,8 +140,14 @@ public class CrawlingService {
             return new ArrayList<>(); // 요소가 없으면 빈 리스트 반환
         }
     }
-//
-//
+
+//    카테고리 번호 1~20번까지 반복하면서, 각 카테고리의 트렌드 키워드 페이지를 방문
+//    페이지수 (totalPageCount)만큼 반복하면서, 키워드 리스트를 크롤링, 해당 키워드가 기존 trends 리스트에 있으면 -> 카테고리를 설정
+//    페이지 이동
+//    crawlingCategory(wait) - 현재 페이지에서 카테고리 이름을 추출함
+//    crawlingTotalPageCount(wait) - 총 몇 개의 키워드가 있는지 파악해서 -> 페이지 수 계산 (25개당 한 페이지)
+//    List<webElement> KeywordElements = crawlingkeyword(driver,wait);- 각 페이지의 키워드 요소들을 찾아서 리스트로 반환
+//    이때 사용하는 게 앞에서 말한 findElementsSafely()
     private void setCategory(WebDriver driver, WebDriverWait wait, List<Trend> trends) {
         for(int categoryParameter = 1; categoryParameter <= 20; categoryParameter++) {
             log.info("crawlCategory: categoryParameter={}", categoryParameter);
@@ -160,7 +181,10 @@ public class CrawlingService {
             }
         }
     }
-//
+
+//    현재 카테고리 페이지에서 총 키워드 개수를 가져와서, 페이지 수 계산을 위한 숫자를 리턴함
+//            해당 xpath 위치에 있는 div에서 페이지 정보 문자열 가져옴
+//    공백 기준으로 자르고 첫 번째 숫자만 사용-> 정수 변환
     private int crawlingTotalPageCount(WebDriverWait wait) {
         try {
             WebElement pageInfoElement = wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -175,6 +199,9 @@ public class CrawlingService {
         }
     }
 
+//    카테고리 이름을 가져오는 메서드
+//            드롭다운 버튼 안의 span[5]에서 텍스트를 추출
+//
     private String crawlingCategory(WebDriverWait wait) {
         try {
             try {
@@ -198,6 +225,8 @@ public class CrawlingService {
         }
     }
 
+//    선택된 국가 이름을 가져옴
+//            드롭다운에 선택된 나라 이름이 들어 있음
     private String crawlingNation(WebDriverWait wait){
         WebElement countryElement = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("/html/body/c-wiz/div/div[5]/div[1]/c-wiz/div/div[1]/div[1]/div/div[1]/c-wiz/div/div/div[1]/div/button/span[5]")
@@ -210,6 +239,9 @@ public class CrawlingService {
         }
     }
 
+//    트렌드 키워드 중 n번째(row) 키워드를 클릭해서,관련 뉴스 제목 3개를 가져옴
+//            클릭 후 뜨는 뉴스 목록 중 qbLC8c 클래스를 가진 요소들을 찾아 옴
+//            최대 3개의 뉴스 타이틀을 리스트에 추가
     private List<String> crawlingNews(WebDriverWait wait, int row){
         List<String> newsTitles = new ArrayList<>();
         try {
@@ -232,7 +264,7 @@ public class CrawlingService {
             return null;
         }
     }
-
+    //다음 페이지로 넘기는?
     private void toNextPage(WebDriver driver, WebDriverWait wait) {
         try {
             WebElement nextpage = wait.until(ExpectedConditions.elementToBeClickable(
@@ -242,7 +274,7 @@ public class CrawlingService {
             log.error("toNextPage Error: {}", e.getMessage());
         }
     }
-
+    //저장
     private void saveTrends(List<Trend> trends) {
         trendRepository.saveAll(trends);
     }
