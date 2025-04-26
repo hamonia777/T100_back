@@ -8,6 +8,8 @@ import org.example.t100.domain.Auth.entity.User;
 import org.example.t100.domain.community.dto.CommunityRequestDto;
 import org.example.t100.global.timestamp.Timestamped;
 
+import java.util.List;
+
 @Entity
 @NoArgsConstructor
 @Getter
@@ -20,6 +22,10 @@ public class Community extends Timestamped {
     String title;
     String content;
     Long view;
+
+    @OneToMany
+    @JoinColumn(name="community_id")
+    List<Comment> comments;
 
     @ManyToOne
     User user;

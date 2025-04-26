@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.t100.domain.Auth.dto.SignupRequestDto;
+import org.example.t100.domain.community.entity.Comment;
 import org.example.t100.domain.community.entity.Community;
 import org.example.t100.global.timestamp.Timestamped;
 
@@ -20,6 +21,7 @@ public class User extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
+    @Column(nullable = false, unique = true)
     String nick;
     @Column(nullable = false, unique = true)
     String email;
@@ -30,6 +32,11 @@ public class User extends Timestamped {
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     List<Community> communities;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id",referencedColumnName = "id")
+    List<Comment> comments;
+
 
     public List<String> getRoleList() {
         if(!this.role.isEmpty()) {
