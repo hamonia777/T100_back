@@ -68,8 +68,10 @@ public class BandfApiService {
 
         promptBuilder.append("요청사항:\n");
         promptBuilder.append("만약 중복된 키워드가 있다면 하나만 사용해 주세요.\n");
+        promptBuilder.append("보고서의 내용을 제외한 다른 불필요한 내용(ex: 물론입니다. 등등)은 전부 제외하고 보고서의 내용만 넣어 주세요.\n");
         promptBuilder.append("1. 검색량이 높은 키워드 순서대로 정렬해서 작성해 주세요.\n");
-        promptBuilder.append("2. 각 키워드는 대제목처럼 강조되도록 구성해 주세요.\n");
+        promptBuilder.append("1-2. 정렬하는 표의 넓이를 모두 같게 통일하고 그 안에 내용만 다르게 해주세요.\n");
+        promptBuilder.append("2. 각 키워드는 과하지 않은 선에서 강조되도록 구성해 주세요.\n");
         promptBuilder.append("3. 각 키워드 아래에는 해당 키워드가 왜 주목받고 있는지 설명해 주세요.\n");
         promptBuilder.append("   - 뉴스 제목을 바탕으로 주요 사건이나 이슈를 유추해 주세요.\n");
         promptBuilder.append("   - 키워드와 연관된 다른 키워드가 있다면 함께 설명해 주세요.\n");
@@ -78,6 +80,7 @@ public class BandfApiService {
         promptBuilder.append("5. 너무 짧거나 단편적인 설명 대신, 충분한 정보가 담긴 문단 형태로 분석해 주세요.\n");
         promptBuilder.append("6. 보고서 스타일의 레이아웃을 포함한 포맷으로 구성해 주세요.\n");
         promptBuilder.append("7. 주요 트렌드 분석 표로 표현해 주세요.\n\n");
+        promptBuilder.append("보고서의 내용을 제외한 다른 불필요한 내용(ex: 물론입니다. , 추가 제안 등등)은 전부 제외하고 보고서의 내용만 넣어 주세요.\n");
 
         promptBuilder.append("아래는 키워드 데이터입니다:\n");
 

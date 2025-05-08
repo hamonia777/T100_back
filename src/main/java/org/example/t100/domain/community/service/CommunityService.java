@@ -27,15 +27,16 @@ public class CommunityService {
     private final UserRepository userRepository;
     private final CommunitiyLikeRepository communitiyLikeRepository;
 
+    //0428 게시글 저장 완성
     @Transactional
-    public SuccessCode saveCommunity(CommunityRequestDto requestDto) {
-        User user = new User("홍길동", "test@gmail.com", "password", "01012345678", "20010421");
-        userRepository.save(user);
-        Community community = new Community(requestDto);
+    public SuccessCode saveCommunity(CommunityRequestDto requestDto,User user) {
+
+        Community community = new Community(requestDto,user);
         communityRepository.save(community);
         return COMMUNITY_SAVE_SUCCESS;
     }
 
+    //만약 아이디를 변수로 받아 온다면 건드릴 필요 없을 듯?
     public CommunityResponseDto getCommunity(Long communityId) {
         Community community = communityRepository.findById(communityId)
                 .orElseThrow(() -> new CommunityNotFoundException(ErrorCode.NOT_FOUND_DATA));
@@ -44,6 +45,8 @@ public class CommunityService {
         return new CommunityResponseDto(community);
     }
 
+ 
+    //쓰지 않는 기능
     public SuccessCode CommunityLike(Long communityId,Long userId) {
         Community community = communityRepository.findById(communityId)
                 .orElseThrow(() -> new CommunityNotFoundException(ErrorCode.NOT_FOUND_DATA));
@@ -62,16 +65,25 @@ public class CommunityService {
         }
     }
 
-    public SuccessCode setCommunity(CommunityRequestDto requestDto, Long communityId) {
+    //이걸로 savecommunity를 할 때 사용하려고 했나 봄. 나는 그냥 만들어버림.
+    public SuccessCode setCommunity(CommunityRequestDto requestDto, Long communityId,String email) {
         Community community = communityRepository.findById(communityId).orElseThrow(
                 () -> new CommunityNotFoundException(ErrorCode.NOT_FOUND_DATA)
         );
+        User user=userRepository.findById(community.getUser().getId()).orElse(null);
 
-        community.setCommunity(requestDto);
-        communityRepository.save(community);
-        return COMMUNITY_EDIT_SUCCESS;
+        if(email.equals(user.getEmail())){
+            community.setCommunity(requestDto);
+            communityRepository.save(community);
+            return COMMUNITY_EDIT_SUCCESS;
+        }
+        else{
+            return FAIL;
+        }
+
     }
 
+    //지우는 코드, 이것도 아이디를 받아 온다면 안 건드려도 될 듯
     public SuccessCode deleteCommunity(Long communityId) {
         Community community = communityRepository.findById(communityId).orElseThrow(
                 () -> new CommunityNotFoundException(ErrorCode.NOT_FOUND_DATA)

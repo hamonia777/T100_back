@@ -3,8 +3,8 @@ package org.example.t100.global.Enum;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.*;
+
 @Getter
 public enum SuccessCode {
     /* 200 OK : 요청이 성공적으로 완료되었다는 의미입니다. */
@@ -23,7 +23,8 @@ public enum SuccessCode {
     NO_SHOP_SUCCESS(NO_CONTENT, "조회 가능한 가게가 없습니다."),
     REPORT_CREATE_SUCCESS(OK, "보고서 생성 성공"),
     DUPLICATE_EMAIL(OK,"이메일 중복"),
-    NOT_DUPLICATE_EMAIL(OK,"이메일 유효");
+    NOT_DUPLICATE_EMAIL(OK,"이메일 유효"),
+    FAIL(BAD_REQUEST,"실패");
     
 
     private final HttpStatus httpStatus;

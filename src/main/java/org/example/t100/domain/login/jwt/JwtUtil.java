@@ -11,6 +11,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.t100.domain.Auth.entity.User;
 import org.example.t100.domain.login.dto.JwtDto;
@@ -24,6 +25,7 @@ import java.time.Duration;
 
 import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.CookieValue;
 
 @Slf4j
 @Component
@@ -33,6 +35,7 @@ public class JwtUtil {
     private final Long accessExpMs;
     private final Long refreshExpMs;
     private final RedisUtil redisUtil;
+    private JwtUtil jwtUtil;
 
     public JwtUtil(
             @Value("${spring.jwt.secret}") String secret,
@@ -134,18 +137,41 @@ public class JwtUtil {
         );
     }
 
-    // HTTP 요청의 'Authorization' 헤더에서 JWT 액세스 토큰을 검색
     public String resolveAccessToken(HttpServletRequest request) {
-        String authorization = request.getHeader("accessToken");
-
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            log.warn("[*] No Token in request");
-            return null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies !=null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
-        log.info("[*] Token exists");
-
-        return authorization.split(" ")[1];
+        return null;
     }
+    //헤더가 아닌 쿠키에서 들고 오는 코드로 변환이 필요함 아래에 해야겠음.
+    // HTTP 요청의 'Authorization' 헤더에서 JWT 액세스 토큰을 검색
+//    public String resolveAccessToken(HttpServletRequest request) {
+//        String authorization = request.getHeader("accessToken");
+//
+//
+//        if (authorization == null || !authorization.startsWith("Bearer ")) {
+//            log.warn("[*] No Token in request");
+//            return null;
+//        }
+//        log.info("[*] Token exists");
+//
+//        return authorization.split(" ")[1];
+//    }
+//    public String resolveAccessToken(@CookieValue("accessToken") String accessToken) {
+//
+//        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+//            log.warn("[*] No Token in request");
+//            return null;
+//        }
+//        log.info("[*] Token exists");
+//
+//        return accessToken.split(" ")[1];
+//    }
 
     // 리프레시 토큰의 유효성을 검사 (Redis에서 확인)
     public void isRefreshToken(String refreshToken) {
@@ -160,7 +186,7 @@ public class JwtUtil {
         validateToken(refreshToken);
     }
 
-    public void validateToken(String token) {
+    public boolean validateToken(String token) {
         try {
             // 토큰을 먼저 파싱하여 만료 시간을 가져옴
             Claims claims = Jwts.parserBuilder()
@@ -185,5 +211,6 @@ public class JwtUtil {
         } catch (IllegalArgumentException e) {
             log.info("JWT 토큰이 잘못되었습니다.");
         }
+        return true;
     }
 }
