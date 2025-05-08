@@ -12,6 +12,7 @@ import org.example.t100.global.timestamp.Timestamped;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @NoArgsConstructor
@@ -61,4 +62,6 @@ public class User extends Timestamped {
         this.phone = phone;
         this.birth = birth;
     }
+    
 }
+

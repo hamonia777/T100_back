@@ -38,7 +38,8 @@ public class Community extends Timestamped {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
     }
-    public Community(CommunityRequestDto requestDto) {
+
+    public Community(CommunityRequestDto requestDto,User user) {
         this.user = user;
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();

@@ -53,7 +53,7 @@ public class OpenApiService {
 //        List<Trend> trends = trendRepository.findByIdBetween(1L, 100L);
         StringBuilder promptBuilder = new StringBuilder();
 
-        promptBuilder.append("키워드들에 대한 카테고리, 나라, 검색량, 시작일, 관련 뉴스 제목입니다. 어떤 일이 이슈인지 분석하고 설명해주세요 이슈 중에서 그 키워드와 연관 키워드가 있다면 그 키워드와 연계해서 분석해주세요\n");
+        promptBuilder.append("키워드들에 대한 카테고리, 나라, 검색량, 시작일, 관련 뉴스 제목입니다. 어떤 일이 이슈인지 분석하고 설명해주세요 이슈 중에서 그 키워드와 연관 키워드가 있다면 그 키워드와 연계해서 분석해주세요.그리고 다른 사족(ex:어떤 내용을 더 추가 해드릴까요? 같은 말)은 전부 빼고 보고서의 내용만 보고서로 만들어 주세요.\n");
 
         if (trends == null || trends.isEmpty()) {
             return "No trends available.";
