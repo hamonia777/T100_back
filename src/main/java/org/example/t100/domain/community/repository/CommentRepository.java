@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment,Long> {
     List<Comment> findByCommunityId(Long communityId);
+    List<Comment> findByUserId(Long userId);
+    void deleteAllByCommunityId(Long communityId);
 }
