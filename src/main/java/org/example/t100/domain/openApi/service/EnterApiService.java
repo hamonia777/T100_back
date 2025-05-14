@@ -72,6 +72,7 @@ public class EnterApiService {
         promptBuilder.append("- 관련 뉴스 제목 3개\n\n");
 
         promptBuilder.append("요청사항:\n");
+        promptBuilder.append("보고서의 내용을 제외한 다른 불필요한 내용(ex: 물론입니다. , 추가 제안 등등)은 전부 제외하고 보고서의 내용만 넣어 주세요.\n");
         promptBuilder.append("만약 중복된 키워드가 있다면 하나만 사용해 주세요.\n");
         promptBuilder.append("보고서의 내용을 제외한 다른 불필요한 내용(ex: 물론입니다. 등등)은 전부 제외하고 보고서의 내용만 넣어 주세요.\n");
         promptBuilder.append("1. 검색량이 높은 키워드 순서대로 정렬해서 작성해 주세요.\n");

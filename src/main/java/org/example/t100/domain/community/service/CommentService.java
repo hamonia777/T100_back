@@ -19,7 +19,9 @@ import org.example.t100.global.Enum.ErrorCode;
 import org.example.t100.global.Enum.SuccessCode;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.example.t100.global.Enum.SuccessCode.*;
 import static org.example.t100.global.Enum.SuccessCode.COMMUNITY_DELETE_SUCCESS;
@@ -31,50 +33,47 @@ public class CommentService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
 
-    //0428 게시글 저장 완성
     @Transactional
-    public SuccessCode saveComment(CommentDto commentDto, User user,Community community) {
-
-        Comment comment = new Comment(commentDto,user,community);
+    public SuccessCode saveComment(CommentDto commentDto,User user,Community community) {
+        Comment comment = new Comment(commentDto, user , community);
         commentRepository.save(comment);
         return COMMUNITY_SAVE_SUCCESS;
     }
 
-    //만약 아이디를 변수로 받아 온다면 건드릴 필요 없을 듯?
-    public CommunityResponseDto getCommunity(Long communityId) {
-        Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new CommunityNotFoundException(ErrorCode.NOT_FOUND_DATA));
-        community.setView(community.getView() + 1);
-        communityRepository.save(community);
-        return new CommunityResponseDto(community);
+
+    public List<CommentDto> getComment(Long communityId) {
+        List<Comment> comment = commentRepository.findByCommunityId(communityId);
+        List<CommentDto> commentDtos= comment.stream()
+                .map(comm -> new CommentDto(comm))
+                .collect(Collectors.toList());
+        return commentDtos;
     }
 
 
-
     //이걸로 savecommunity를 할 때 사용하려고 했나 봄. 나는 그냥 만들어버림.
-    public SuccessCode setCommunity(CommunityRequestDto requestDto, Long communityId,String email) {
-        Community community = communityRepository.findById(communityId).orElseThrow(
+    public SuccessCode setComment(CommentDto commentDto, Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new CommunityNotFoundException(ErrorCode.NOT_FOUND_DATA)
         );
-        User user=userRepository.findById(community.getUser().getId()).orElse(null);
-
-        if(email.equals(user.getEmail())){
-            community.setCommunity(requestDto);
-            communityRepository.save(community);
+        if(commentId.equals(comment.getId())){
+            comment.setComment(commentDto);
+            commentRepository.save(comment);
             return COMMUNITY_EDIT_SUCCESS;
         }
         else{
             return FAIL;
         }
-
     }
 
     //지우는 코드, 이것도 아이디를 받아 온다면 안 건드려도 될 듯
-    public SuccessCode deleteCommunity(Long communityId) {
-        Community community = commentRepository.findById(communityId).orElseThrow(
+    public SuccessCode deleteComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new CommunityNotFoundException(ErrorCode.NOT_FOUND_DATA)
         );
-        communityRepository.delete(community);
+        //CommunityLike communityLike = communitiyLikeRepository.findByCommunityId(communityId);
+
+        //communitiyLikeRepository.delete(communityLike);
+        commentRepository.delete(comment);
 
         return COMMUNITY_DELETE_SUCCESS;
     }

@@ -8,9 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableJpaAuditing
 public class T100Application {
-
     public static void main(String[] args) {
         SpringApplication.run(T100Application.class, args);
     }
-
 }

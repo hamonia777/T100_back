@@ -8,6 +8,7 @@ import org.example.t100.domain.Auth.entity.User;
 import org.example.t100.domain.community.dto.CommunityRequestDto;
 import org.example.t100.global.timestamp.Timestamped;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -32,6 +33,15 @@ public class Community extends Timestamped {
 //    @OneToMany(fetch = FetchType.EAGER)
 //    @JoinColumn(name = "community_id")
 //    CommunityLike communityLike;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.communityAt == null) {  // 만약 reportAt이 null이면
+            this.communityAt = LocalDateTime.now();  // 자동으로 현재 시간 삽입
+        }
+    }
+    LocalDateTime communityAt = LocalDateTime.now();
+
 
     public void setCommunity(CommunityRequestDto requestDto)
     {

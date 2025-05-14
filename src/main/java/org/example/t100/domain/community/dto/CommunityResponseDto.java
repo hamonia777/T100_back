@@ -21,6 +21,6 @@ public class CommunityResponseDto {
         this.content = community.getContent();
         this.view = community.getView();
         this.nick = community.getUser().getNick();
-        this.created_at = community.getCreatedAt();
+        this.created_at = community.getCommunityAt();
     }
 }
