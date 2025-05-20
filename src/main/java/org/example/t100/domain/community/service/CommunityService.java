@@ -94,6 +94,7 @@ public class CommunityService {
     }
 
     //지우는 코드, 이것도 아이디를 받아 온다면 안 건드려도 될 듯
+    @Transactional
     public SuccessCode deleteCommunity(Long communityId) {
         Community community = communityRepository.findById(communityId).orElseThrow(
                 () -> new CommunityNotFoundException(ErrorCode.NOT_FOUND_DATA)

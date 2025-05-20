@@ -51,6 +51,7 @@ public class CommentService {
 
 
     //이걸로 savecommunity를 할 때 사용하려고 했나 봄. 나는 그냥 만들어버림.
+    @Transactional
     public SuccessCode setComment(CommentDto commentDto, Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new CommunityNotFoundException(ErrorCode.NOT_FOUND_DATA)
@@ -66,6 +67,7 @@ public class CommentService {
     }
 
     //지우는 코드, 이것도 아이디를 받아 온다면 안 건드려도 될 듯
+    @Transactional
     public SuccessCode deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new CommunityNotFoundException(ErrorCode.NOT_FOUND_DATA)
