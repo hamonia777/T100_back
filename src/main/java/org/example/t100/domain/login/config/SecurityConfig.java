@@ -39,7 +39,8 @@ public class SecurityConfig {
             "/api/signup/findMyPass", "/api/signup/checkNick","/api/signup/checkEmail", "/api/chat","/api/report",
             "/api/LandgCrawl","/api/SportsCrawl","/api/otherChat","/api/bandfChat","/api/enterChat","/api/landgChat",
             "/api/sportsChat","/api/otherReport","/api/bandfReport","/api/enterReport","/api/landgReport",
-            "/api/sportsReport","/ChromeTest/test"
+            "/api/sportsReport","/ChromeTest/test","/api/eval","/api/eval/all",
+            "/api/all/ave"
     };
 
     //AuthenticationManage빈을 생성, AuthenticationManager는 실제 인증 과정을 처리하는 인터페이스,AuthenticationConfiguration

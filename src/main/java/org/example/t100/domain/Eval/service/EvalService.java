@@ -1,5 +1,6 @@
 package org.example.t100.domain.Eval.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.t100.domain.Eval.dto.EvalDto;
 import org.example.t100.domain.Eval.entity.Eval;
 import org.example.t100.domain.Eval.repository.EvalRepository;
@@ -15,8 +16,9 @@ import java.util.stream.Collectors;
 import static org.example.t100.global.Enum.SuccessCode.COMMUNITY_SAVE_SUCCESS;
 
 @Service
+@RequiredArgsConstructor
 public class EvalService {
-    private EvalRepository evalRepository;
+    private final EvalRepository evalRepository;
 
 
     public Object saveEval(EvalDto evalDto) {

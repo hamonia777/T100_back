@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.t100.domain.Auth.dto.MyPageDto;
 import org.example.t100.domain.Auth.dto.SignupRequestDto;
 import org.example.t100.domain.community.entity.Comment;
 import org.example.t100.domain.community.entity.Community;
@@ -44,6 +45,14 @@ public class User extends Timestamped {
             return Arrays.asList(this.role.split(","));
         }
         return new ArrayList<>();
+    }
+    public User(MyPageDto myPageDto){
+        this.nick = myPageDto.getNick();
+        this.email = myPageDto.getEmail();
+        this.pass = myPageDto.getPass();
+        this.phone = myPageDto.getPhone();
+        this.birth = myPageDto.getBirth();
+        this.role = myPageDto.getRole();
     }
 
     public User(SignupRequestDto requestDto){

@@ -8,4 +8,5 @@ import java.util.List;
 
 @Repository
 public interface CommunityRepository extends JpaRepository<Community, Long> {
+    List<Community> findAllByUserId(Long userId);
 }
